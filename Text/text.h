@@ -3,6 +3,7 @@
 #include <vector>
 #include <fstream>
 #include<iostream>
+#include <sstream>
 using namespace std;
 template <typename T>
 class word
@@ -29,7 +30,7 @@ private:
 	vector<word<T>*> t;
 	int total_len = 0;
 	int remain;
-	int penalty;
+	int penalty = 0;
 	vector<int> r;
 	vector<int> s;
 };
@@ -38,13 +39,22 @@ template <typename T>
 text<T>::text(string text)
 {
 	ifstream in(text);
-	T w;
-	while(getline(in, w, ' '))
+	string line;
+	while(getline(in, line, '\n'))
 	{
-		t.push_back(new word<T>(w, w.length()));
-		total_len += w.length();
-		total_len++;
+		istringstream l(line);
+		T w;
+		while (getline(l, w, ' '))
+		{
+			w.push_back(' ');
+			t.push_back(new word<T>(w, w.length()));
+			total_len += w.length();
+			total_len++;
+		}
 	}
+	
+	t[t.size() - 1]->key.pop_back();
+	t[t.size() - 1]->len--;
 	total_len--;
 	remain = total_len;
 }
