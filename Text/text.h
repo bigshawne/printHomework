@@ -27,18 +27,16 @@ public:
 	~text();
 	void print(int len)
 	{
-		cout << print(0, len, INT_MAX);
+		print(0, len, INT_MAX);
 	}
 private:
-	int price(int i, int j, int len, int n);
+	void price(int n);
 	int end(int i, int n);
-	int print(int i, int len, int q);
+	void print(int i, int len, int q);
 	bool if_lastline(int i, int n);
 	vector<word<T>*> t;
 	int total_len = 0;
-	int penalty = 0;
-	vector<int> r;
-	vector<int> s;
+	vector<vector<int>>p;
 };
 
 template <typename T>
@@ -104,18 +102,9 @@ void text<T>::print(int i, int len)
 
 //Recursive solution
 template <typename T>
-int text<T>::print(int i, int len, int q)
+void text<T>::print(int i, int len, int q)
 {
-	int e = end(i, len);
-	int line = 0;
-	for(int k = i; i < e; i++)
-	{
-		line += t[k]->len;
-		int p = price(i, k, line, len);
-		cout << p << endl;
-		q = min(q, p + print(k + 1, len, q));
-	}
-	return q;
+	price(len);
 }
 
 template <typename T>
@@ -126,13 +115,22 @@ bool text<T>::if_lastline(int i, int n)
 }
 
 template <typename T>
-int text<T>::price(int i, int j, int len, int n)
+void text<T>::price(int n)
 {
-	if (if_lastline(i, n))
-		return pow(penalty, 3);
-	int p = n - j + i - len;
-	penalty += p;
-	return pow(penalty, 3);
+	for(unsigned int j = 0; j < t.size(); ++j)
+	{
+		p.push_back(vector<int>(t.size(), 0));
+	}
+
+
+	int penalty = 0;
+	for(unsigned int i = 0; i < t.size(); i++)
+	{
+		int left = n - t[i]->len;
+		penalty += left;
+		p[i][i] = pow(penalty, 3);
+	}
+	int s = 0;
 }
 
 template <typename T>
