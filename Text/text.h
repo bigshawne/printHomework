@@ -25,22 +25,20 @@ public:
 	text(){};
 	text(string text);
 	~text();
-	void print(int len)
-	{
-		print(0, len, INT_MAX);
-	}
+	void print(int len);
 private:
-	void price(int n);
-	int end(int i, int n);
-	void print(int i, int len, int q);
-	bool if_lastline(int i, int n);
+	void price();
+	void traversal();
 	vector<word<T>*> t;
 	int total_len = 0;
+	int line = 0;
 	vector<vector<int>>p;
+	vector<int> r;
+	vector<int> s;
 };
 
 template <typename T>
-text<T>::text(string text)
+text<T>::text(string text):r(t.size(), 0), s(t.size(), 0)
 {
 	int pos = 0;
 	ifstream in(text);
@@ -60,8 +58,8 @@ text<T>::text(string text)
 	}
 	
 	t[t.size() - 1]->key.pop_back();
-	t[t.size() - 1]->len--;
-	total_len--;
+	--t[t.size() - 1]->len;
+	--total_len;
 }
 
 template <typename T>
@@ -75,79 +73,87 @@ text<T>::~text()
 	}
 }
 
-/*
- *Greedy Algorithm
 template <typename T>
-void text<T>::print(int i, int len)
+void text<T>::print(int len)
 {
-	int line = 0;
-	for(unsigned int j = 0; j < t.size(); ++j)
+	line = len;
+	price();
+	traversal();
+	unsigned int pos = 0;
+	while(pos < t.size() - 1)
 	{
-		if(line + t[j]->len > len)
+		int end = s[pos];
+		for(int x = pos; x <= end; ++x)
 		{
-			cout << endl;
-			cout << t[j]->key;
-			line = 0;
-			line += t[j]->len;
+			cout << t[x]->key;
 		}
-		else
-		{
-			cout << t[j]->key;
-			line += t[j]->len;
-		}
+		cout << endl;
+		pos = end + 1;
 	}
 }
-*/
 
-
-//Recursive solution
 template <typename T>
-void text<T>::print(int i, int len, int q)
+void text<T>::traversal()
 {
-	price(len);
+	vector<int> result(t.size(), 0);
+	vector<int> seg(t.size(), 0);
+	int e = t.size() - 1;
+	for(int i =e; i > -1; --i)
+	{
+		int q = INT_MAX;
+		int j = t.size() - 1;
+		for(int k = i; k <= j; ++k)
+		{
+			if (min(q, p[i][k] + result[k]) >= 0) 
+			{
+				if(q > min(q, p[i][k] + result[k]))
+				{
+					q = min(q, p[i][k] + result[k]);
+					seg[i] = k;
+				}
+				
+			}
+			else
+				break;
+		}
+		result[i] = q;
+	}
+	r = result;
+	s = seg;
 }
 
 template <typename T>
-bool text<T>::if_lastline(int i, int n)
+void text<T>::price()
 {
-	int remain = total_len - t[i]->pos;
-	return remain < n;
-}
-
-template <typename T>
-void text<T>::price(int n)
-{
-	for(unsigned int j = 0; j < t.size(); ++j)
+	for(unsigned int n = 0; n < t.size(); ++n)
 	{
 		p.push_back(vector<int>(t.size(), 0));
 	}
-
-
-	int penalty = 0;
-	for(unsigned int i = 0; i < t.size(); i++)
+	
+	for(unsigned int l = 0; l < t.size(); ++l)
 	{
-		int left = n - t[i]->len;
-		penalty += left;
-		p[i][i] = pow(penalty, 3);
+		p[l][l] = line - t[l]->len;
 	}
-	int s = 0;
-}
-
-template <typename T>
-int text<T>::end(int i, int n)
-{
-	unsigned int end = i;
-	int line = 0;
-	while(end < t.size())
+	p[t.size() - 1][t.size() - 1] = 0;
+	for(unsigned int m = 0; m < t.size() - 1; ++m)
 	{
-		if(line + t[end]->len > n)
+		for(unsigned int y = m + 1; y < t.size(); ++y)
 		{
-			return end;
+			if(y == t.size() - 1)
+			{
+				p[m][y] = 0;
+			}
+			else 
+			{
+				p[m][y] = p[m][y - 1] - 1 - t[y]->len;
+			}
 		}
-		line += t[end]->len;
-		++end;
 	}
-	return end;
+	for (unsigned int m = 0; m < t.size() - 1; ++m)
+	{
+		for(unsigned int x = 0; x < t.size() -1; ++x)
+		{
+			p[m][x] = (int)pow(p[m][x], 3);
+		}
+	}
 }
-
-
