@@ -30,7 +30,6 @@ private:
 	void price();
 	void traversal();
 	vector<word<T>*> t;
-	int total_len = 0;
 	int line = 0;
 	vector<vector<int>>p;
 	vector<int> r;
@@ -51,15 +50,12 @@ text<T>::text(string text):r(t.size(), 0), s(t.size(), 0)
 		{
 			w.push_back(' ');
 			t.push_back(new word<T>(w, w.length(), pos));
-			total_len += w.length();
-			total_len++;
 			pos += w.length();
 		}
 	}
 	
 	t[t.size() - 1]->key.pop_back();
 	--t[t.size() - 1]->len;
-	--total_len;
 }
 
 template <typename T>
@@ -80,16 +76,20 @@ void text<T>::print(int len)
 	price();
 	traversal();
 	unsigned int pos = 0;
+	ofstream out("result.txt");
 	while(pos < t.size() - 1)
 	{
 		int end = s[pos];
 		for(int x = pos; x <= end; ++x)
 		{
 			cout << t[x]->key;
+			out << t[x]->key;
 		}
 		cout << endl;
+		out << endl;
 		pos = end + 1;
 	}
+	out.close();
 }
 
 template <typename T>
@@ -104,14 +104,13 @@ void text<T>::traversal()
 		int j = t.size() - 1;
 		for(int k = i; k <= j; ++k)
 		{
-			if (min(q, p[i][k] + result[k]) >= 0) 
+			if (p[i][k] >= 0) 
 			{
 				if(q > min(q, p[i][k] + result[k]))
 				{
 					q = min(q, p[i][k] + result[k]);
 					seg[i] = k;
 				}
-				
 			}
 			else
 				break;
